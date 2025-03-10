@@ -303,32 +303,32 @@ export default function WeatherSearch() {
       {hasWeatherData && (
         <div className="mt-4 w-full flex flex-col justify-center items-center">
 
-        <div className="datapoint w-full">
+          <div className="datapoint w-full">
 
-          <h2 className="text-xl font-semibold">
-            {weather.city}
-            {weather.country === "US" && weather.state
-              ? `, ${stateLookup[weather.state.toLowerCase()] || weather.state}`
-              : weather.country !== "US"
-              ? weather.state
-                ? `, ${weather.state}, ${countryLookup[weather.country] || weather.country}`
-                : `, ${countryLookup[weather.country] || weather.country}`
-              : ""}
-          </h2>
-          <p className="text-gray-700 text-8xl">
-            {/* Temperature */}
-            {Math.round(weather.weather.main.temp)}°{units === "imperial" ? "F" : "C"}
-          </p>
-          <p>Feels like: {Math.round(weather.weather.main.feels_like)}°</p>
-          <p className="text-gray-700">
-            {/* Condition */}
-            {weather.weather.weather[0].description.charAt(0).toUpperCase() + weather.weather.weather[0].description.slice(1)}
-          </p>
-          <img
-            src={`/weather-icons/${iconMap[weather.weather.weather[0].id]}`}
-            alt="Weather Icon"
-          />
-        </div>
+            <h2 className="text-xl font-semibold">
+              {weather.city}
+              {weather.country === "US" && weather.state
+                ? `, ${stateLookup[weather.state.toLowerCase()] || weather.state}`
+                : weather.country !== "US"
+                  ? weather.state
+                    ? `, ${weather.state}, ${countryLookup[weather.country] || weather.country}`
+                    : `, ${countryLookup[weather.country] || weather.country}`
+                  : ""}
+            </h2>
+            <p className="text-gray-700 text-8xl">
+              {/* Temperature */}
+              {Math.round(weather.weather.main.temp)}°{units === "imperial" ? "F" : "C"}
+            </p>
+            <p>Feels like: {Math.round(weather.weather.main.feels_like)}°</p>
+            <p className="text-gray-700">
+              {/* Condition */}
+              {weather.weather.weather[0].description.charAt(0).toUpperCase() + weather.weather.weather[0].description.slice(1)}
+            </p>
+            <img
+              src={`/weather-icons/${iconMap[weather.weather.weather[0].id]}`}
+              alt="Weather Icon"
+            />
+          </div>
 
 
 
@@ -348,7 +348,7 @@ export default function WeatherSearch() {
             <div className="datapoint">
               <p>
                 Wind: <span>{weather.weather.wind.speed} {units === "imperial" ? "mph" : "m/s"}{" "}
-                {weather.weather.wind.deg ? `from ${weather.weather.wind.deg}°` : ""}</span>
+                  {weather.weather.wind.deg ? `from ${weather.weather.wind.deg}°` : ""}</span>
               </p>
             </div>
             <div className="datapoint">
