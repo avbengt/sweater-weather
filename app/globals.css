@@ -3,13 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Inter", sans-serif !important;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,7 +14,26 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans) !important;
+  background-image: url('/backgrounds/sunset-clouds.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  @apply bgs backdrop-blur-xs;
 }
+
+.datapoint {
+  @apply p-4 text-center rounded-md bg-white/30 backdrop-blur-lg shadow-md border border-white/20;
+}
+
+.datapoint p span {
+  display: block;
+}
+
+
+
+/*
+font-family: var(--font-sans) !important;
+@apply bg-cover bg-center bg-no-repeat backdrop-blur-xs;
+background-image: url('/backgrounds/sunset-clouds.jpg');
+*/
