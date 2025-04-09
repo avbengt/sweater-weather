@@ -15,25 +15,24 @@
 
 body {
   font-family: var(--font-sans) !important;
-  background-image: url('/backgrounds/sunset-clouds.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  /* background-image: url('/backgrounds/sunset-clouds.jpg'); */
+  background: rgb(110,211,221);
+  background: -moz-linear-gradient(180deg, rgba(110,211,221,1) 0%, rgba(27,133,175,1) 100%);
+  background: -webkit-linear-gradient(180deg, rgba(110,211,221,1) 0%, rgba(27,133,175,1) 100%);
+  background: linear-gradient(180deg, rgba(110,211,221,1) 0%, rgba(27,133,175,1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#6ed3dd",endColorstr="#1b85af",GradientType=1);
   @apply backdrop-blur-xs;
 }
 
+.dp-frame {
+  @apply p-3 text-center rounded-3xl bg-white/20 backdrop-blur-lg shadow-md border border-white/10;
+}
 .datapoint {
-  @apply p-4 text-center rounded-md bg-white/30 backdrop-blur-lg shadow-md border border-white/20;
+  @apply p-4 text-center rounded-2xl bg-white/50 backdrop-blur-lg  border border-white/20;
+  height: 100%;
 }
 
 .datapoint p span {
   display: block;
 }
 
-
-
-/*
-font-family: var(--font-sans) !important;
-@apply bg-cover bg-center bg-no-repeat backdrop-blur-xs;
-background-image: url('/backgrounds/sunset-clouds.jpg');
-*/

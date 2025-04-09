@@ -303,72 +303,92 @@ export default function WeatherSearch() {
       {hasWeatherData && (
         <div className="mt-4 w-full flex flex-col justify-center items-center">
 
-          <div className="datapoint w-full">
+          <div className="dp-frame w-full">
+            <div className="datapoint w-full">
 
-            <h2 className="text-xl font-semibold">
-              {weather.city}
-              {weather.country === "US" && weather.state
-                ? `, ${stateLookup[weather.state.toLowerCase()] || weather.state}`
-                : weather.country !== "US"
-                  ? weather.state
-                    ? `, ${weather.state}, ${countryLookup[weather.country] || weather.country}`
-                    : `, ${countryLookup[weather.country] || weather.country}`
-                  : ""}
-            </h2>
-            <p className="text-gray-700 text-8xl">
-              {/* Temperature */}
-              {Math.round(weather.weather.main.temp)}°{units === "imperial" ? "F" : "C"}
-            </p>
-            <p>Feels like: {Math.round(weather.weather.main.feels_like)}°</p>
-            <p className="text-gray-700">
-              {/* Condition */}
-              {weather.weather.weather[0].description.charAt(0).toUpperCase() + weather.weather.weather[0].description.slice(1)}
-            </p>
-            <img
-              src={`/weather-icons/${iconMap[weather.weather.weather[0].id]}`}
-              alt="Weather Icon"
-            />
+              <h2 className="text-xl font-semibold">
+                {weather.city}
+                {weather.country === "US" && weather.state
+                  ? `, ${stateLookup[weather.state.toLowerCase()] || weather.state}`
+                  : weather.country !== "US"
+                    ? weather.state
+                      ? `, ${weather.state}, ${countryLookup[weather.country] || weather.country}`
+                      : `, ${countryLookup[weather.country] || weather.country}`
+                    : ""}
+              </h2>
+              <p className="text-gray-700 text-8xl">
+                {/* Temperature */}
+                {Math.round(weather.weather.main.temp)}°{units === "imperial" ? "F" : "C"}
+              </p>
+              <p>Feels like: {Math.round(weather.weather.main.feels_like)}°</p>
+              <p className="text-gray-700">
+                {/* Condition */}
+                {weather.weather.weather[0].description.charAt(0).toUpperCase() + weather.weather.weather[0].description.slice(1)}
+              </p>
+              <img
+                src={`/weather-icons/${iconMap[weather.weather.weather[0].id]}`}
+                alt="Weather Icon"
+              />
+            </div>
           </div>
 
 
 
           <div className="w-full mt-4 grid grid-cols-2 gap-4 text-gray-700">
-            <div className="datapoint">
-              <p>High / Low: <span>{Math.round(weather.weather.main.temp_max)}° / {Math.round(weather.weather.main.temp_min)}°</span></p>
+            <div className="dp-frame">
+              <div className="datapoint">
+                <p>High / Low: <span>{Math.round(weather.weather.main.temp_max)}° / {Math.round(weather.weather.main.temp_min)}°</span></p>
+              </div>
             </div>
-            <div className="datapoint">
-              <p>Humidity: <span>{weather.weather.main.humidity}%</span></p>
+            <div className="dp-frame">
+              <div className="datapoint">
+                <p>Humidity: <span>{weather.weather.main.humidity}%</span></p>
+              </div>
             </div>
-            <div className="datapoint">
-              <p>Pressure: <span>{weather.weather.main.pressure} hPa</span></p>
+            <div className="dp-frame">
+              <div className="datapoint">
+                <p>Pressure: <span>{weather.weather.main.pressure} hPa</span></p>
+              </div>
             </div>
-            <div className="datapoint">
-              <p>Visibility: <span>{weather.weather.visibility / 1000} km</span></p>
+            <div className="dp-frame">
+              <div className="datapoint">
+                <p>Visibility: <span>{weather.weather.visibility / 1000} km</span></p>
+              </div>
             </div>
-            <div className="datapoint">
-              <p>
-                Wind: <span>{weather.weather.wind.speed} {units === "imperial" ? "mph" : "m/s"}{" "}
-                  {weather.weather.wind.deg ? `from ${weather.weather.wind.deg}°` : ""}</span>
-              </p>
+            <div className="dp-frame">
+              <div className="datapoint">
+                <p>
+                  Wind: <span>{weather.weather.wind.speed} {units === "imperial" ? "mph" : "m/s"}{" "}
+                    {weather.weather.wind.deg ? `from ${weather.weather.wind.deg}°` : ""}</span>
+                </p>
+              </div>
             </div>
-            <div className="datapoint">
-              <p>Sunrise: <span>{new Date(weather.weather.sys.sunrise * 1000).toLocaleTimeString()}</span></p>
-              <p>Sunset: <span>{new Date(weather.weather.sys.sunset * 1000).toLocaleTimeString()}</span></p>
+            <div className="dp-frame">
+              <div className="datapoint">
+                <p>Sunrise: <span>{new Date(weather.weather.sys.sunrise * 1000).toLocaleTimeString()}</span></p>
+                <p>Sunset: <span>{new Date(weather.weather.sys.sunset * 1000).toLocaleTimeString()}</span></p>
+              </div>
             </div>
 
             {dewPoint !== null && (
-              <div className="datapoint">
-                <p>Dew Point: {Math.round(dewPoint)}°</p>
+              <div className="dp-frame">
+                <div className="datapoint">
+                  <p>Dew Point: {Math.round(dewPoint)}°</p>
+                </div>
               </div>
             )}
             {uvi !== null && (
-              <div className="datapoint">
-                <p>UV Index: {uvi}</p>
+              <div className="dp-frame">
+                <div className="datapoint">
+                  <p>UV Index: {uvi}</p>
+                </div>
               </div>
             )}
             {moonPhase !== null && (
-              <div className="datapoint">
-                <p>Moon Phase: {moonPhase}</p>
+              <div className="dp-frame">
+                <div className="datapoint">
+                  <p>Moon Phase: {moonPhase}</p>
+                </div>
               </div>
             )}
 
