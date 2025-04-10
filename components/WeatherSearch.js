@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getCoordinates } from "@/utils/getCoordinates";
+import WeatherIcon from "@/components/WeatherIcon";
 
 const stateLookup = {
   alabama: "AL", alaska: "AK", arizona: "AZ", arkansas: "AR", california: "CA", colorado: "CO",
@@ -17,86 +18,16 @@ const stateLookup = {
 };
 
 const countryLookup = {
-  IE: "Ireland",
-  CA: "Canada",
-  FR: "France",
-  DE: "Germany",
-  IN: "India",
-  AU: "Australia",
-  MX: "Mexico",
-  BR: "Brazil",
-  JP: "Japan",
-  CN: "China",
-  IT: "Italy",
-  ES: "Spain",
-  SE: "Sweden",
-  NO: "Norway",
-  NZ: "New Zealand"
+  IE: "Ireland", CA: "Canada", FR: "France", DE: "Germany", IN: "India", AU: "Australia",
+  MX: "Mexico", BR: "Brazil", JP: "Japan", CN: "China", IT: "Italy", ES: "Spain",
+  SE: "Sweden", NO: "Norway", NZ: "New Zealand"
 };
-
-const iconMap = {
-  200: "thunderstorm.png",
-  201: "thunderstorm.png",
-  202: "thunderstorm.png",
-  210: "light-thunderstorm.png",
-  211: "thunderstorm.png",
-  212: "heavy-thunderstorm.png",
-  221: "ragged-thunderstorm.png",
-  230: "thunderstorm-drizzle.png",
-  231: "thunderstorm-drizzle.png",
-  232: "thunderstorm-drizzle.png",
-  300: "drizzle.png",
-  301: "drizzle.png",
-  302: "drizzle.png",
-  310: "drizzle.png",
-  311: "drizzle.png",
-  312: "drizzle.png",
-  313: "drizzle.png",
-  314: "drizzle.png",
-  321: "drizzle.png",
-  500: "light-rain.png",
-  501: "moderate-rain.png",
-  502: "heavy-rain.png",
-  503: "very-heavy-rain.png",
-  504: "extreme-rain.png",
-  511: "freezing-rain.png",
-  520: "shower-rain.png",
-  521: "shower-rain.png",
-  522: "shower-rain.png",
-  531: "shower-rain.png",
-  600: "light-snow.png",
-  601: "snow.png",
-  602: "heavy-snow.png",
-  611: "sleet.png",
-  612: "sleet.png",
-  613: "sleet.png",
-  615: "rain-snow.png",
-  616: "rain-snow.png",
-  620: "light-snow.png",
-  621: "snow.png",
-  622: "heavy-snow.png",
-  701: "mist.png",
-  711: "smoke.png",
-  721: "haze.png",
-  731: "dust.png",
-  741: "fog.png",
-  751: "sand.png",
-  761: "dust.png",
-  762: "volcanic-ash.png",
-  771: "squalls.png",
-  781: "tornado.png",
-  800: "clear.png",
-  801: "few-clouds.png",
-  802: "scattered-clouds.png",
-  803: "broken-clouds.png",
-  804: "overcast.png"
-};
-
 
 export default function WeatherSearch() {
   const [input, setInput] = useState("");
   const [weather, setWeather] = useState(null);
   const [units, setUnits] = useState("imperial");
+  const [isNight, setIsNight] = useState(false);
   const [error, setError] = useState("");
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -104,6 +35,9 @@ export default function WeatherSearch() {
   const [dewPoint, setDewPoint] = useState(null);
   const [uvi, setUvi] = useState(null);
   const [moonPhase, setMoonPhase] = useState(null);
+  const [conditionId, setConditionId] = useState(null);
+  const [iconCode, setIconCode] = useState(null);
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -124,7 +58,7 @@ export default function WeatherSearch() {
     if (selectedLocation && selectedLocation.lat && selectedLocation.lon) {
       fetchWeather(selectedLocation);
     }
-  }, [units]);
+  }, [selectedLocation, units]);
 
   const fetchSuggestions = async (query) => {
     setError("");
@@ -135,32 +69,37 @@ export default function WeatherSearch() {
       return;
     }
     if (Array.isArray(result)) {
-      if (result.length === 1) {
-        const single = {
-          ...result[0],
-          city: result[0].name,
-          lat: result[0].lat,
-          lon: result[0].lon,
-        };
-        setSelectedLocation(single);
-        setLocations([]);
-        fetchWeather(single);
-      } else {
-        setLocations(result);
-        setActiveIndex(-1);
-      }
+      setLocations(result);
+      setActiveIndex(-1);
     } else {
+      let cityName = "";
+      let reverseState = "";
+    
+      try {
+        const reverseGeoRes = await fetch(
+          `https://api.openweathermap.org/geo/1.0/reverse?lat=${result.lat}&lon=${result.lon}&limit=1&appid=${process.env.NEXT_PUBLIC_WEATHER_API_KEY}`
+        );
+        const reverseGeoData = await reverseGeoRes.json();
+        if (Array.isArray(reverseGeoData) && reverseGeoData.length > 0) {
+          cityName = reverseGeoData[0].name || "";
+          reverseState = reverseGeoData[0].state || "";
+        }
+      } catch (e) {
+        console.error("Reverse geocoding failed", e);
+      }
+    
       const fixedResult = {
-        city: result.city || result.name,
-        state: result.state || "",
+        city: cityName || `ZIP ${result.zip || input}`,
+        name: cityName || `ZIP ${result.zip || input}`,
+        state: reverseState || result.state || "",
         country: result.country || "US",
-        zip: result.zip || null,
+        zip: result.zip || input,
         lat: result.lat,
         lon: result.lon,
       };
-      setSelectedLocation(fixedResult);
-      setLocations([]);
-      fetchWeather(fixedResult);
+    
+      setLocations([fixedResult]);
+      setActiveIndex(0);
     }
   };
 
@@ -170,6 +109,10 @@ export default function WeatherSearch() {
         `/api/fetch-weather-by-coords?lat=${locationData.lat}&lon=${locationData.lon}&units=${units}&_t=${Date.now()}`
       );
       const data = await response.json();
+      const now = data.dt;
+      const sunrise = data.sys.sunrise;
+      const sunset = data.sys.sunset;
+      const isNightTime = now < sunrise || now > sunset;
 
       if (!data || data.error) {
         setError("Weather could not be loaded.");
@@ -180,6 +123,11 @@ export default function WeatherSearch() {
         ...locationData,
         weather: data,
       });
+      setIsNight(isNightTime);
+      setConditionId(data.weather[0].id);
+      setIconCode(data.weather[0].icon);
+      setDescription(data.weather[0].description);
+
       const oneCallResponse = await fetch(
         `/api/onecall-weather?lat=${locationData.lat}&lon=${locationData.lon}&units=${units}`
       );
@@ -196,10 +144,6 @@ export default function WeatherSearch() {
     }
   };
 
-  const toggleUnits = () => {
-    setUnits((prev) => (prev === "imperial" ? "metric" : "imperial"));
-  };
-
   const handleKeyDown = (e) => {
     if (locations.length === 0) return;
 
@@ -210,44 +154,60 @@ export default function WeatherSearch() {
       e.preventDefault();
       setActiveIndex((prev) => (prev - 1 >= 0 ? prev - 1 : locations.length - 1));
     } else if (e.key === "Enter") {
+      e.preventDefault();
       if (activeIndex >= 0) {
         const loc = locations[activeIndex];
         const locationWithCity = {
           ...loc,
-          city: loc.name,
+          city: loc.city || loc.name || `ZIP ${loc.zip || input}`,
           lat: loc.lat,
           lon: loc.lon,
         };
-        setInput(`${loc.name}${loc.state ? `, ${loc.state}` : ""}, ${countryLookup[loc.country] || loc.country}`);
+        setInput(`${loc.city || loc.name}${loc.state ? `, ${loc.state}` : ""}, ${countryLookup[loc.country] || loc.country}`);
         setLocations([]);
         setSelectedLocation(locationWithCity);
-        fetchWeather(locationWithCity);
       }
     } else if (e.key === "Escape") {
       setLocations([]);
       setActiveIndex(-1);
     }
   };
+  
+  const toggleUnits = () => {
+    setUnits((prev) => (prev === "imperial" ? "metric" : "imperial"));
+  };
 
   const hasWeatherData = weather?.weather?.main?.temp !== undefined;
 
   return (
     <div className="flex justify-center flex-col items-center w-full p-4 sm:w-2/3 h-2/3 max-w-6xl mx-auto">
-
-      <h1 className="text-2xl font-bold mb-4">Sweater Weather</h1>
-
       <div className="relative mb-4 w-4/5 sm:w-1/3">
-        <input
-          type="text"
-          placeholder="Enter city name or ZIP code..."
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-            setSelectedLocation(null);
-          }}
-          onKeyDown={handleKeyDown}
-          className="w-full p-2 border border-gray-300 rounded-md text-center"
-        />
+      <input
+        type="text"
+        placeholder="Enter city name or ZIP code..."
+        value={input}
+        onChange={(e) => {
+          setInput(e.target.value);
+          setSelectedLocation(null);
+        }}
+        onKeyDown={handleKeyDown}
+        className="w-full pl-10 pr-2 p-2 border border-gray-300 rounded-md text-center"
+      />
+      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="#000"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 21l-4.35-4.35M16.65 16.65A7.5 7.5 0 1 0 3 10.5a7.5 7.5 0 0 0 13.65 6.15z"
+          />
+        </svg>
+      </div>
         {locations.length > 0 && (
           <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg">
             {locations.map((loc, index) => {
@@ -262,7 +222,7 @@ export default function WeatherSearch() {
                 <li
                   key={index}
                   onClick={() => {
-                    setInput(`${loc.name}${loc.state ? `, ${loc.state}` : ""}, ${countryLookup[loc.country] || loc.country}`);
+                    setInput(`${loc.city || loc.name}${loc.state ? `, ${loc.state}` : ""}, ${countryLookup[loc.country] || loc.country}`);
                     setLocations([]);
                     setSelectedLocation(locationWithCity);
                     fetchWeather(locationWithCity);
@@ -302,38 +262,43 @@ export default function WeatherSearch() {
 
       {hasWeatherData && (
         <div className="mt-4 w-full flex flex-col justify-center items-center">
-
           <div className="dp-frame w-full">
-            <div className="datapoint w-full">
-
-              <h2 className="text-xl font-semibold">
-                {weather.city}
-                {weather.country === "US" && weather.state
-                  ? `, ${stateLookup[weather.state.toLowerCase()] || weather.state}`
-                  : weather.country !== "US"
-                    ? weather.state
-                      ? `, ${weather.state}, ${countryLookup[weather.country] || weather.country}`
-                      : `, ${countryLookup[weather.country] || weather.country}`
-                    : ""}
-              </h2>
-              <p className="text-gray-700 text-8xl">
-                {/* Temperature */}
-                {Math.round(weather.weather.main.temp)}°{units === "imperial" ? "F" : "C"}
-              </p>
-              <p>Feels like: {Math.round(weather.weather.main.feels_like)}°</p>
-              <p className="text-gray-700">
-                {/* Condition */}
-                {weather.weather.weather[0].description.charAt(0).toUpperCase() + weather.weather.weather[0].description.slice(1)}
-              </p>
-              <img
-                src={`/weather-icons/${iconMap[weather.weather.weather[0].id]}`}
-                alt="Weather Icon"
-              />
+            <div className="datapoint w-full flex flex-col">
+              <div className="w-full">
+                <h2 className="text-xl font-semibold">
+                  {(weather.city || weather.name || `ZIP ${weather.zip || ""}`) +
+                    (weather.state ? `, ${stateLookup[weather.state.toLowerCase()] || weather.state}` : "") +
+                    (weather.country && weather.country !== "US"
+                      ? `, ${countryLookup[weather.country] || weather.country}`
+                      : "")}
+                </h2>
+              </div>
+              <div className="w-full flex">
+                <div className="size-fit">
+                {conditionId && (
+                    <>
+                      <WeatherIcon
+                        conditionId={weather.weather.weather[0].id}
+                        isNight={isNight}
+                        className="w-32 h-32 text-gray-700"
+                      />
+                      <p className="text-gray-700">
+                        {description.charAt(0).toUpperCase() + description.slice(1)}
+                      </p>
+                    </>
+                  )}
+                </div>
+                <div className="size-fit">
+                  <p className="text-gray-700 text-8xl">
+                    {/* Temperature */}
+                    {Math.round(weather.weather.main.temp)}°{units === "imperial" ? "F" : "C"}
+                  </p>
+                  <p>Feels like: {Math.round(weather.weather.main.feels_like)}°</p>
+                </div>
+              </div>
             </div>
           </div>
-
-
-
+          
           <div className="w-full mt-4 grid grid-cols-2 gap-4 text-gray-700">
             <div className="dp-frame">
               <div className="datapoint">
