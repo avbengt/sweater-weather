@@ -181,84 +181,69 @@ export default function WeatherSearch() {
 
   return (
     <div className="flex justify-center flex-col items-center w-full p-4 sm:w-2/3 h-2/3 max-w-6xl mx-auto">
-      <div className="relative mb-4 w-4/5 sm:w-1/3">
-      <input
-        type="text"
-        placeholder="Enter city name or ZIP code..."
-        value={input}
-        onChange={(e) => {
-          setInput(e.target.value);
-          setSelectedLocation(null);
-        }}
-        onKeyDown={handleKeyDown}
-        className="w-full pl-10 pr-2 p-2 border border-gray-300 rounded-md text-center"
-      />
-      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="#000"
-          strokeWidth={2}
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21 21l-4.35-4.35M16.65 16.65A7.5 7.5 0 1 0 3 10.5a7.5 7.5 0 0 0 13.65 6.15z"
-          />
-        </svg>
+
+      <div className="dp-frame">
+        <div className="datapoint w-full flex flex-col">
+          <div className="relative mb-4">
+            <input
+              type="text"
+              placeholder="Enter city name or ZIP code..."
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+                setSelectedLocation(null);
+              }}
+              onKeyDown={handleKeyDown}
+              className="w-full pl-10 pr-2 p-2 border border-gray-300 rounded-md text-center"
+            />
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="#000"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35M16.65 16.65A7.5 7.5 0 1 0 3 10.5a7.5 7.5 0 0 0 13.65 6.15z"
+                />
+              </svg>
+            </div>
+            {locations.length > 0 && (
+              <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg">
+                {locations.map((loc, index) => {
+                  const locationWithCity = {
+                    ...loc,
+                    city: loc.name,
+                    lat: loc.lat,
+                    lon: loc.lon,
+                  };
+                  const isActive = index === activeIndex;
+                  return (
+                    <li
+                      key={index}
+                      onClick={() => {
+                        setInput(`${loc.city || loc.name}${loc.state ? `, ${loc.state}` : ""}, ${countryLookup[loc.country] || loc.country}`);
+                        setLocations([]);
+                        setSelectedLocation(locationWithCity);
+                        fetchWeather(locationWithCity);
+                      }}
+                      className={`cursor-pointer px-4 py-2 ${isActive ? "bg-gray-200" : "hover:bg-gray-100"}`}
+                    >
+                      {loc.name}{loc.state ? `, ${loc.state}` : ""}, {countryLookup[loc.country] || loc.country}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+
+          {error && <p className="text-red-500 mt-2">{error}</p>}
+
+        </div>
       </div>
-        {locations.length > 0 && (
-          <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg">
-            {locations.map((loc, index) => {
-              const locationWithCity = {
-                ...loc,
-                city: loc.name,
-                lat: loc.lat,
-                lon: loc.lon,
-              };
-              const isActive = index === activeIndex;
-              return (
-                <li
-                  key={index}
-                  onClick={() => {
-                    setInput(`${loc.city || loc.name}${loc.state ? `, ${loc.state}` : ""}, ${countryLookup[loc.country] || loc.country}`);
-                    setLocations([]);
-                    setSelectedLocation(locationWithCity);
-                    fetchWeather(locationWithCity);
-                  }}
-                  className={`cursor-pointer px-4 py-2 ${isActive ? "bg-gray-200" : "hover:bg-gray-100"}`}
-                >
-                  {loc.name}{loc.state ? `, ${loc.state}` : ""}, {countryLookup[loc.country] || loc.country}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-
-      <div className="flex items-center gap-3 mt-2">
-        <span className={`text-sm ${units === "imperial" ? "font-bold" : "text-gray-600"}`}>
-          Imperial (°F)
-        </span>
-
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={units === "metric"}
-            onChange={toggleUnits}
-            className="sr-only peer"
-          />
-          <div className="w-11 h-6 bg-gray-300 rounded-full transition-colors duration-300" />
-          <div className="absolute top-0 left-0 w-6 h-6 bg-white border border-gray-300 rounded-full shadow transform transition-transform duration-300 peer-checked:translate-x-5" />
-        </label>
-
-        <span className={`text-sm ${units === "metric" ? "font-bold" : "text-gray-600"}`}>
-          Metric (°C)
-        </span>
-      </div>
-
-      {error && <p className="text-red-500 mt-2">{error}</p>}
 
       {hasWeatherData && (
         <div className="mt-4 w-full flex flex-col justify-center items-center">
@@ -266,6 +251,32 @@ export default function WeatherSearch() {
             <div className="datapoint w-full flex flex-col">
               <div className="w-full">
                 <h2 className="text-xl font-semibold">
+
+                {/*  Imperial / Metric Toggle  */}
+                <div className="flex items-center gap-3 mt-2">
+                  <span className={`text-xs ${units === "imperial" ? "font-bold" : "text-gray-600"}`}>
+                    Imperial (°F)
+                  </span>
+
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={units === "metric"}
+                      onChange={toggleUnits}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-[#63a9c2] rounded-full transition-colors duration-300 inset-shadow-sm inset-shadow-black/10" />
+                    <div className="absolute top-0 left-0 w-6 h-6 bg-white border border-gray-300 rounded-full shadow transform transition-transform duration-300 peer-checked:translate-x-5" />
+                  </label>
+
+                  <span className={`text-xs ${units === "metric" ? "font-bold" : "text-gray-600"}`}>
+                    Metric (°C)
+                  </span>
+                </div>
+                {/*  End Imperial / Metric Toggle  */}
+
+
+
                   {(weather.city || weather.name || `ZIP ${weather.zip || ""}`) +
                     (weather.state ? `, ${stateLookup[weather.state.toLowerCase()] || weather.state}` : "") +
                     (weather.country && weather.country !== "US"
