@@ -12,64 +12,14 @@ export async function GET(request) {
   const BASE_URL_ZIP = "https://api.openweathermap.org/geo/1.0/zip";
   const BASE_URL_WEATHER = "https://api.openweathermap.org/data/2.5/weather";
 
-  const stateLookup = {
-    alabama: "AL",
-    alaska: "AK",
-    arizona: "AZ",
-    arkansas: "AR",
-    california: "CA",
-    colorado: "CO",
-    connecticut: "CT",
-    delaware: "DE",
-    florida: "FL",
-    georgia: "GA",
-    hawaii: "HI",
-    idaho: "ID",
-    illinois: "IL",
-    indiana: "IN",
-    iowa: "IA",
-    kansas: "KS",
-    kentucky: "KY",
-    louisiana: "LA",
-    maine: "ME",
-    maryland: "MD",
-    massachusetts: "MA",
-    michigan: "MI",
-    minnesota: "MN",
-    mississippi: "MS",
-    missouri: "MO",
-    montana: "MT",
-    nebraska: "NE",
-    nevada: "NV",
-    "new hampshire": "NH",
-    "new jersey": "NJ",
-    "new mexico": "NM",
-    "new york": "NY",
-    "north carolina": "NC",
-    "north dakota": "ND",
-    ohio: "OH",
-    oklahoma: "OK",
-    oregon: "OR",
-    pennsylvania: "PA",
-    "rhode island": "RI",
-    "south carolina": "SC",
-    "south dakota": "SD",
-    tennessee: "TN",
-    texas: "TX",
-    utah: "UT",
-    vermont: "VT",
-    virginia: "VA",
-    washington: "WA",
-    "west virginia": "WV",
-    wisconsin: "WI",
-    wyoming: "WY"
-  };
+  const stateLookup = { /* same as yours */ };
 
   try {
     let geoUrl;
     let isZip = /^\d{5}$/.test(location);
 
     if (isZip) {
+      // ZIP handling remains the same
       geoUrl = `${BASE_URL_ZIP}?zip=${location},US&appid=${API_KEY}`;
       const geoResponse = await fetch(geoUrl);
       const geoData = await geoResponse.json();
@@ -94,7 +44,7 @@ export async function GET(request) {
       return new Response(
         JSON.stringify({
           city: geoData.name || `ZIP ${location}`,
-          state: stateAbbrev, // use the normalized abbreviation
+          state: stateAbbrev,
           country: geoData.country || "US",
           zip: location,
           lat: geoData.lat,
@@ -104,17 +54,16 @@ export async function GET(request) {
         { status: 200 }
       );
     } else {
+      // Handle city/state queries
       const parts = location.split(/[,\s]+/).filter(Boolean);
       const city = parts[0] || "";
       const stateOrCountry = parts[1] || "";
+      let q = city;
 
-      let stateAbbrev = stateOrCountry;
-      const normalized = stateOrCountry.toLowerCase();
-      if (stateLookup[normalized]) {
-        stateAbbrev = stateLookup[normalized];
+      if (stateOrCountry) {
+        q += `,${stateOrCountry}`;
       }
 
-      const q = city;
       geoUrl = `${BASE_URL_CITY}?q=${encodeURIComponent(q)}&limit=10&appid=${API_KEY}`;
 
       const geoResponse = await fetch(geoUrl);

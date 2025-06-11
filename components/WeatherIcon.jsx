@@ -1,4 +1,5 @@
 import React from "react";
+import { getWeatherIconName } from "@/utils/getWeatherIconName";
 import { iconRegistry } from "./iconRegistry";
 
 const iconMap = {
@@ -21,18 +22,15 @@ const iconMap = {
   906: "hail", 957: "strong-wind"
 };
 
-export default function WeatherIcon({ conditionId, isNight, className = "w-16 h-16 text-gray-700" }) {
+export default function WeatherIcon({ conditionId, description, isNight, className = "w-16 h-16 text-slate-300" }) {
   if (!conditionId) return null;
 
-  const base = iconMap[conditionId] || "clear"; // fallback is just 'clear'
-  const finalIcon = base.startsWith("day-") || base.startsWith("night-")
-    ? base
-    : `${isNight ? "night-alt" : "day"}-${base}`;
-
-  const iconKey = `wi-${finalIcon}`;
+  const iconKey = getWeatherIconName(conditionId, description, isNight);
   const IconComponent = iconRegistry[iconKey];
 
-  if (!IconComponent) return <div className="text-xs text-gray-400">[missing icon: {iconKey}]</div>;
+  if (!IconComponent) {
+    return <div className="text-xs text-gray-400">[missing icon: {iconKey}]</div>;
+  }
 
   return <IconComponent className={className} />;
 }

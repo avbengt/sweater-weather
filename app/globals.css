@@ -16,23 +16,26 @@
 body {
   font-family: var(--font-sans) !important;
   /* background-image: url('/backgrounds/sunset-clouds.jpg'); */
-  background: rgb(110,211,221);
-  background: -moz-linear-gradient(180deg, rgba(110,211,221,1) 0%, rgba(27,133,175,1) 100%);
-  background: -webkit-linear-gradient(180deg, rgba(110,211,221,1) 0%, rgba(27,133,175,1) 100%);
-  background: linear-gradient(180deg, rgba(110,211,221,1) 0%, rgba(27,133,175,1) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#6ed3dd",endColorstr="#1b85af",GradientType=1);
-  @apply backdrop-blur-xs;
+  /* background: rgb(110, 211, 221);
+  background: -moz-linear-gradient(180deg, rgba(110, 211, 221, 1) 0%, rgba(27, 133, 175, 1) 100%);
+  background: -webkit-linear-gradient(180deg, rgba(110, 211, 221, 1) 0%, rgba(27, 133, 175, 1) 100%);
+  background: linear-gradient(180deg, rgba(110, 211, 221, 1) 0%, rgba(27, 133, 175, 1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#6ed3dd", endColorstr="#1b85af", GradientType=1); */
+  @apply backdrop-blur-xs bg-slate-300;
 }
 
-.dp-frame {
+/* .dp-frame {
   @apply p-3 text-center rounded-3xl bg-white/20 backdrop-blur-lg shadow-md border border-white/10;
-}
-.datapoint {
-  @apply p-4 text-center rounded-2xl bg-white/50 backdrop-blur-lg  border border-white/20;
+} */
+.container {
+  @apply p-10 pt-5 text-center rounded-2xl bg-white/55 border border-white/20;
   height: 100%;
+}
+
+.datapoint {
+  @apply flex items-center justify-between border-b-1 border-slate-300 py-2 w-1/2;
 }
 
 .datapoint p span {
   display: block;
 }
-
