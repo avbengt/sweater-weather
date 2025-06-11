@@ -92,7 +92,6 @@ export default function WeatherSearch() {
     if (!result || result.error) {
       setError("Failed to fetch weather data.");
       return;
-      console.log("weatherData:", weatherData);
     }
 
     const { weatherData, dewPoint, uvi, moonPhase, dailyForecast } = result;
@@ -104,41 +103,31 @@ export default function WeatherSearch() {
     }
 
     const now = weatherData.dt;
-
     const localTimeFormatted = new Date(now * 1000).toLocaleTimeString([], {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true
     });
     setLocalTime(localTimeFormatted);
+
     const sunrise = weatherData?.sys?.sunrise || 0;
     const sunset = weatherData?.sys?.sunset || 0;
     const isNightTime = now < sunrise || now > sunset;
 
-    let cityName = loc.city || "";
-    let stateName = loc.state || "";
-    let countryName = loc.country || "US";
+    let cityName = "";
+    let stateName = "";
+    let countryName = "US";
+    let zip = "";
 
     try {
       const googleRes = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${loc.lat},${loc.lon}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+        `/api/reverseGeocode?lat=${loc.lat}&lon=${loc.lon}`
       );
       const googleData = await googleRes.json();
 
       if (googleData.results && googleData.results.length > 0) {
-        // Filter results containing the ZIP code
-        const resultsWithZip = googleData.results.filter(r => {
-          return r.address_components.some(c =>
-            c.types.includes("postal_code") &&
-            c.long_name === loc.zip
-          );
-        });
+        const components = googleData.results[0].address_components;
 
-        const resultToUse = resultsWithZip[0] || googleData.results[0];
-
-        const components = resultToUse.address_components;
-
-        // Try sublocality > neighborhood > locality > postal_town
         const cityComponent =
           components.find(c => c.types.includes("postal_town")) ||
           components.find(c => c.types.includes("sublocality_level_1")) ||
@@ -151,28 +140,34 @@ export default function WeatherSearch() {
         const countryComponent = components.find(c =>
           c.types.includes("country")
         );
+        const zipComponent = components.find(c =>
+          c.types.includes("postal_code")
+        );
 
-        cityName = cityComponent?.long_name || cityName;
-        stateName = stateComponent?.short_name || stateName;
-        countryName = countryComponent?.short_name || countryName;
+        cityName = cityComponent?.long_name || "";
+        stateName = stateComponent?.short_name || "";
+        countryName = countryComponent?.short_name || "US";
+        zip = zipComponent?.long_name || "";
       }
     } catch (error) {
       console.error("Google reverse geocoding failed:", error);
     }
 
-    // Only set input if user hasn't manually typed
     if (!inputFocused) {
       setInput(`${cityName}${stateName ? `, ${stateLookup[stateName.toLowerCase()] || stateName}` : ""}${countryName !== "US" ? `, ${countryLookup[countryName] || countryName}` : ""}`);
     }
 
     setWeather({
-      ...loc,
+      lat: loc.lat,
+      lon: loc.lon,
       city: cityName,
       state: stateName,
       country: countryName,
+      zip: zip,
       weather: weatherData,
       moon_phase: moonPhase,
     });
+
     setIsNight(isNightTime);
     setConditionId(weatherData.weather[0].id);
     setDescription(weatherData.weather[0].description);
