@@ -35,6 +35,24 @@ const getMoonPhaseIconKey = (moonPhase) => {
         return "wi-moon-alt-waxing-gibbous-6";
     }
 
+    if (moonPhase > 0.5 && moonPhase < 0.75) {
+        if (moonPhase < 0.58) return "wi-moon-alt-waning-gibbous-1";
+        if (moonPhase < 0.62) return "wi-moon-alt-waning-gibbous-2";
+        if (moonPhase < 0.66) return "wi-moon-alt-waning-gibbous-3";
+        if (moonPhase < 0.7) return "wi-moon-alt-waning-gibbous-4";
+        if (moonPhase < 0.75) return "wi-moon-alt-waning-gibbous-5";
+        return "wi-moon-alt-waning-gibbous-6";
+    }
+
+    if (moonPhase > 0.75 && moonPhase < 1) {
+        if (moonPhase < 0.8) return "wi-moon-alt-waning-crescent-1";
+        if (moonPhase < 0.84) return "wi-moon-alt-waning-crescent-2";
+        if (moonPhase < 0.88) return "wi-moon-alt-waning-crescent-3";
+        if (moonPhase < 0.92) return "wi-moon-alt-waning-crescent-4";
+        if (moonPhase < 0.96) return "wi-moon-alt-waning-crescent-5";
+        return "wi-moon-alt-waning-crescent-6";
+    }
+
     if (moonPhase === 0.5) return "wi-moon-alt-full";
     if (moonPhase === 0.25) return "wi-moon-alt-first-quarter";
     if (moonPhase === 0.75) return "wi-moon-alt-third-quarter";
@@ -46,9 +64,12 @@ const getMoonPhaseIconKey = (moonPhase) => {
 const MoonPhase = ({ moonPhase }) => {
     if (moonPhase === null || moonPhase === undefined) {
         return (
-            <p className="datapoint">
-                Moon Phase: <span>N/A</span>
-            </p>
+            <li className="datapoint">
+                <div className="flex items-center gap-3">
+                    <span>Moon Phase:</span>
+                </div>
+                <span>N/A</span>
+            </li>
         );
     }
 
@@ -57,10 +78,13 @@ const MoonPhase = ({ moonPhase }) => {
     const IconComponent = iconRegistry[iconKey] || iconRegistry["wi-na"];
 
     return (
-        <p className="datapoint">
-            {IconComponent && <IconComponent className="w-8 h-8 mr-1 inline-block" />}
-            Moon Phase: <span>{description}</span>
-        </p>
+        <li className="datapoint">
+            <div className="flex items-center gap-3">
+                {IconComponent && <IconComponent className="w-6 h-6" />}
+                <span>Moon Phase:</span>
+            </div>
+            <span>{description}</span>
+        </li>
     );
 };
 

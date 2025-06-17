@@ -1,5 +1,4 @@
 import WiAlien from "./icons/wi-alien.svg";
-import WiBarometer from "./icons/wi-barometer.svg";
 import WiCelsius from "./icons/wi-celsius.svg";
 import WiCloud from "./icons/wi-cloud.svg";
 import WiCloudDown from "./icons/wi-cloud-down.svg";
@@ -48,7 +47,6 @@ import WiFire from "./icons/wi-fire.svg";
 import WiFog from "./icons/wi-fog.svg";
 import WiHail from "./icons/wi-hail.svg";
 import WiHot from "./icons/wi-hot.svg";
-import WiHumidity from "./icons/wi-humidity.svg";
 import WiLightning from "./icons/wi-lightning.svg";
 import WiMoonrise from "./icons/wi-moonrise.svg";
 import WiMoonset from "./icons/wi-moonset.svg";
@@ -114,9 +112,6 @@ import WiStars from "./icons/wi-stars.svg";
 import WiStormShowers from "./icons/wi-storm-showers.svg";
 import WiStormWarning from "./icons/wi-storm-warning.svg";
 import WiStrongWind from "./icons/wi-strong-wind.svg";
-import WiSunrise from "./icons/wi-sunrise.svg";
-import WiSunset from "./icons/wi-sunset.svg";
-import WiThermometer from "./icons/wi-thermometer.svg";
 import WiThermometerExterior from "./icons/wi-thermometer-exterior.svg";
 import WiThermometerInternal from "./icons/wi-thermometer-internal.svg";
 import WiThunderstorm from "./icons/wi-thunderstorm.svg";
@@ -210,13 +205,20 @@ import WiMoonWaxingGibbous5 from "./icons/wi-moon-waxing-gibbous-5.svg";
 import WiMoonWaxingGibbous6 from "./icons/wi-moon-waxing-gibbous-6.svg";
 import WiVisibility from "./icons/wi-visibility.svg";
 import WiWind from "./icons/wi-wind.svg";
-import WiDewPoint from "./icons/wi-dewpoint.svg";
+import WiDewpoint from "./icons/wi-dewpoint.svg";
 import WiLowTemp from "./icons/wi-low-temperature.svg";
 import WiHighTemp from "./icons/wi-high-temperature.svg";
+import WiUvi from "./icons/wi-uvi.svg";
+import WiHumidity from "./icons/wi-humidity.svg";
+import WiBarometer from "./icons/wi-barometer.svg";
+import WiSunrise from "./icons/wi-sunrise.svg";
+import WiSunset from "./icons/wi-sunset.svg";
+import WiThermometer from "./icons/wi-thermometer.svg";
+
+
 
 export const iconRegistry = {
   "wi-alien": WiAlien,
-  "wi-barometer": WiBarometer,
   "wi-celsius": WiCelsius,
   "wi-cloud": WiCloud,
   "wi-cloud-down": WiCloudDown,
@@ -265,7 +267,6 @@ export const iconRegistry = {
   "wi-fog": WiFog,
   "wi-hail": WiHail,
   "wi-hot": WiHot,
-  "wi-humidity": WiHumidity,
   "wi-lightning": WiLightning,
   "wi-moonrise": WiMoonrise,
   "wi-moonset": WiMoonset,
@@ -331,9 +332,6 @@ export const iconRegistry = {
   "wi-storm-showers": WiStormShowers,
   "wi-storm-warning": WiStormWarning,
   "wi-strong-wind": WiStrongWind,
-  "wi-sunrise": WiSunrise,
-  "wi-sunset": WiSunset,
-  "wi-thermometer": WiThermometer,
   "wi-thermometer-exterior": WiThermometerExterior,
   "wi-thermometer-internal": WiThermometerInternal,
   "wi-thunderstorm": WiThunderstorm,
@@ -427,7 +425,23 @@ export const iconRegistry = {
   "wi-moon-waxing-gibbous-6": WiMoonWaxingGibbous6,
   "wi-visibility": WiVisibility,
   "wi-wind": WiWind,
-  "wi-dewpoint": WiDewPoint,
+  "wi-dewpoint": WiDewpoint,
   "wi-low-temp": WiLowTemp,
   "wi-high-temp": WiHighTemp,
+  "wi-uvi": WiUvi,
+  "wi-humidity": WiHumidity,
+  "wi-barometer": WiBarometer,
+  "wi-sunrise": WiSunrise,
+  "wi-sunset": WiSunset,
+  "wi-thermometer": WiThermometer,
 };
+
+export const HumidityIcon = WiHumidity;
+export const PressureIcon = WiBarometer;
+export const VisibilityIcon = WiVisibility;
+export const WindIcon = WiWind;
+export const DewPointIcon = WiDewpoint;
+export const UVIcon = WiUvi;
+export const SunriseIcon = WiSunrise;
+export const SunsetIcon = WiSunset;
+export const ThermometerIcon = WiThermometer;

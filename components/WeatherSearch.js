@@ -227,11 +227,10 @@ export default function WeatherSearch() {
   const VisibilityIcon = iconRegistry["wi-visibility"];
   const WindIcon = iconRegistry["wi-wind"];
   const DewPointIcon = iconRegistry["wi-dewpoint"];
-  const UVIcon = iconRegistry["wi-day-sunny"];
+  const UVIcon = iconRegistry["wi-uvi"];
   const SunriseIcon = iconRegistry["wi-sunrise"];
   const SunsetIcon = iconRegistry["wi-sunset"];
-  const LowTempIcon = iconRegistry["wi-low-temperature"];
-  const HighTempIcon = iconRegistry["wi-high-temperature"];
+  const HighLowIcon = iconRegistry["wi-thermometer"];
 
   return (
     <div>
@@ -271,7 +270,7 @@ export default function WeatherSearch() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className={`text-sm ${units === "imperial" ? "font-bold" : "text-slate-400"}`}>
               °F
             </span>
@@ -343,55 +342,98 @@ export default function WeatherSearch() {
               </div>
 
               <ul className="mt-8">
-                <p className="datapoint">High / Low: <span>{Math.round(weather.weather.main.temp_max)}° / {Math.round(weather.weather.main.temp_min)}°</span></p>
 
-                <p className="datapoint">
-                  {HumidityIcon && <HumidityIcon className="inline w-8 h-8 mr-1" />}
-                  Humidity: <span>{weather.weather.main.humidity}%</span>
-                </p>
+                <li className="datapoint">
+                  <div className="flex items-center gap-3">
+                    {HighLowIcon && <HighLowIcon className="w-6 h-6" />}
+                    <span>High / Low:</span>
+                  </div>
+                  <span>{Math.round(weather.weather.main.temp_max)}° / {Math.round(weather.weather.main.temp_min)}°</span>
+                </li>
 
-                <p className="datapoint">
-                  {PressureIcon && <PressureIcon className="inline w-8 h-8 mr-1" />}
-                  Pressure: <span>{weather.weather.main.pressure} hPa</span>
-                </p>
+                <li className="datapoint">
+                  <div className="flex items-center gap-3">
+                    {HumidityIcon && <HumidityIcon className="w-6 h-6" />}
+                    <span>Humidity:</span>
+                  </div>
+                  <span>{weather.weather.main.humidity}%</span>
+                </li>
 
-                <p className="datapoint">
-                  {VisibilityIcon && <VisibilityIcon className="inline w-8 h-8 mr-1" />}
-                  Visibility: <span>{weather.weather.visibility / 1000} km</span>
-                </p>
+                <li className="datapoint">
+                  <div className="flex items-center gap-3">
+                    {PressureIcon && <PressureIcon className="w-6 h-6" />}
+                    <span>Pressure:</span>
+                  </div>
+                  <span>{weather.weather.main.pressure} hPa</span>
+                </li>
 
-                <p className="datapoint">
-                  {WindIcon && <WindIcon className="inline w-8 h-8 mr-1" />}
-                  Wind: <span>{weather.weather.wind.speed} {units === "imperial" ? "mph" : "m/s"}{" "}
-                    {weather.weather.wind.deg ? `from ${weather.weather.wind.deg}°` : ""}</span>
-                </p>
+                <li className="datapoint">
+                  <div className="flex items-center gap-3">
+                    {VisibilityIcon && <VisibilityIcon className="w-6 h-6" />}
+                    <span>Visibility:</span>
+                  </div>
+                  <span>{weather.weather.visibility / 1000} km</span>
+                </li>
 
-                <p className="datapoint">
-                  {DewPointIcon && <DewPointIcon className="inline w-8 h-8 mr-1" />}
-                  Dew Point: {dewPoint !== null && (<span>{Math.round(dewPoint)}°</span>)}
-                </p>
+                <li className="datapoint">
+                  <div className="flex items-center gap-3">
+                    {WindIcon && <WindIcon className="w-6 h-6" />}
+                    <span>Wind:</span>
+                  </div>
+                  <span>
+                    {weather.weather.wind.speed} {units === "imperial" ? "mph" : "m/s"}{" "}
+                    {weather.weather.wind.deg ? `from ${weather.weather.wind.deg}°` : ""}
+                  </span>
+                </li>
 
-                <p className="datapoint">
-                  {UVIcon && <UVIcon className="inline w-8 h-8 mr-1" />}
-                  UV Index: <span>{uvi !== null ? uvi : "N/A"}</span>
-                </p>
+                <li className="datapoint">
+                  <div className="flex items-center gap-3">
+                    {DewPointIcon && <DewPointIcon className="w-6 h-6" />}
+                    <span>Dew Point:</span>
+                  </div>
+                  <span>{dewPoint !== null ? `${Math.round(dewPoint)}°` : "N/A"}</span>
+                </li>
+
+                <li className="datapoint">
+                  <div className="flex items-center gap-3">
+                    {UVIcon && <UVIcon className="w-6 h-6" />}
+                    <span>UV Index:</span>
+                  </div>
+                  <span>{uvi !== null ? uvi : "N/A"}</span>
+                </li>
 
                 <MoonPhase moonPhase={weather?.moon_phase} />
+
+                <li className="datapoint">
+                  <div className="flex items-center gap-3">
+                    {SunriseIcon && <SunriseIcon className="w-6 h-6" />}
+                    <span>Sunrise:</span>
+                  </div>
+                  <span>
+                    {new Date(weather.weather.sys.sunrise * 1000).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </li>
+
+                <li className="datapoint">
+                  <div className="flex items-center gap-3">
+                    {SunsetIcon && <SunsetIcon className="w-6 h-6" />}
+                    <span>Sunset:</span>
+                  </div>
+                  <span>
+                    {new Date(weather.weather.sys.sunset * 1000).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </li>
 
               </ul>
 
 
 
-              <p className="datapoint">
-                {SunriseIcon && <SunriseIcon className="inline w-8 h-8 mr-1" />}
-                Sunrise: <span>{new Date(weather.weather.sys.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-              </p>
-
-
-              <p className="datapoint">
-                {SunsetIcon && <SunsetIcon className="inline w-8 h-8 mr-1" />}
-                Sunset: <span>{new Date(weather.weather.sys.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-              </p>
 
             </div>
 
