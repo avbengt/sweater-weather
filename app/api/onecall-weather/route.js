@@ -9,22 +9,29 @@ export async function GET(request) {
   }
 
   const API_KEY = process.env.WEATHER_API_KEY;
-  const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,alerts&units=${units}&appid=${API_KEY}`;
+  const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&units=${units}&appid=${API_KEY}`;
 
   try {
+    console.log("Fetching OpenWeather One Call:", url);
+
     const response = await fetch(url);
     const data = await response.json();
 
-    if (!data || data.cod) {
-      throw new Error("Failed to fetch one call data");
+    if (!data || data?.current === undefined) {
+      console.error("OpenWeather 3.0 One Call response missing expected data:", data);
+      throw new Error("Invalid response from One Call API");
     }
 
     return new Response(JSON.stringify({
-      dew_point: data.current.dew_point,
-      uvi: data.current.uvi,
+      current: data.current,
+      hourly: data.hourly?.slice(0, 48) ?? [],
+      daily: data.daily ?? [],
+      dew_point: data.current?.dew_point ?? null,
+      uvi: data.current?.uvi ?? null,
       moon_phase: data.daily?.[0]?.moon_phase ?? null,
-      daily: data.daily
+      timezone_offset: data.timezone_offset ?? 0
     }), { status: 200 });
+
   } catch (error) {
     console.error("One Call API error:", error);
     return new Response(JSON.stringify({ error: "One Call API fetch failed" }), { status: 500 });

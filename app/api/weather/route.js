@@ -10,7 +10,7 @@ export async function GET(request) {
   const API_KEY = process.env.WEATHER_API_KEY;
   const BASE_URL_CITY = "https://api.openweathermap.org/geo/1.0/direct";
   const BASE_URL_ZIP = "https://api.openweathermap.org/geo/1.0/zip";
-  const BASE_URL_WEATHER = "https://api.openweathermap.org/data/2.5/weather";
+  const BASE_URL_WEATHER = "https://api.openweathermap.org/data/3.0/weather";
 
   const stateLookup = { /* same as yours */ };
 

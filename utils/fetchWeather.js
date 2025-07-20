@@ -1,39 +1,30 @@
 export default async function fetchWeather(locationData, units = "imperial") {
   try {
-    // Fetch current weather
-    const response = await fetch(
-      `/api/fetch-weather-by-coords?lat=${locationData.lat}&lon=${locationData.lon}&units=${units}&_t=${Date.now()}`
-    );
-    const weatherData = await response.json();
-
-    if (!weatherData || weatherData.error) {
-      console.error("Weather fetch failed:", weatherData);
-      return { error: "Failed to fetch weather data." };
+    if (!locationData?.lat || !locationData?.lon) {
+      console.error("Missing latitude or longitude in fetchWeather:", locationData);
+      return { error: "Missing coordinates" };
     }
 
-    // Fetch one call API
     const oneCallResponse = await fetch(
       `/api/onecall-weather?lat=${locationData.lat}&lon=${locationData.lon}&units=${units}`
     );
-    const oneCallData = await oneCallResponse.json();
 
-    if (!oneCallData || oneCallData.error) {
-      console.error("One Call API error:", oneCallData);
-      return {
-        weatherData,
-        dewPoint: null,
-        uvi: null,
-        moonPhase: null,
-        dailyForecast: [],
-      };
+    const oneCallData = await oneCallResponse.json();
+    console.log("Full One Call API response:", oneCallData);
+
+    if (!oneCallData || oneCallData.cod === "400" || oneCallData.cod === "401" || oneCallData.cod === "404") {
+      console.error("OpenWeather returned error:", oneCallData);
+      return { error: oneCallData.message || "Weather data fetch failed." };
     }
 
     return {
-      weatherData,
-      dewPoint: oneCallData?.dew_point || null,
-      uvi: oneCallData?.uvi || null,
-      moonPhase: oneCallData?.moon_phase || null,
-      dailyForecast: oneCallData?.daily?.slice(1, 6) || [],
+      current: oneCallData.current,
+      dailyForecast: oneCallData.daily?.slice(1, 6) || [],
+      hourlyForecast: oneCallData.hourly?.slice(0, 12) || [],
+      dewPoint: oneCallData.current?.dew_point || null,
+      uvi: oneCallData.current?.uvi || null,
+      moonPhase: oneCallData.daily?.[0]?.moon_phase || null,
+      timezoneOffset: oneCallData.timezone_offset || 0,
     };
   } catch (error) {
     console.error("Fetch weather error:", error);

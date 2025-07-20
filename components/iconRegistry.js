@@ -445,3 +445,31 @@ export const UVIcon = WiUvi;
 export const SunriseIcon = WiSunrise;
 export const SunsetIcon = WiSunset;
 export const ThermometerIcon = WiThermometer;
+
+export function mapWeatherIcon(iconCode) {
+  if (!iconCode) return null;
+
+  const iconMap = {
+    "01d": "wi-day-sunny",
+    "01n": "wi-night-clear",
+    "02d": "wi-day-cloudy",
+    "02n": "wi-night-alt-cloudy",
+    "03d": "wi-cloud",
+    "03n": "wi-cloud",
+    "04d": "wi-cloudy",
+    "04n": "wi-cloudy",
+    "09d": "wi-showers",
+    "09n": "wi-showers",
+    "10d": "wi-day-rain",
+    "10n": "wi-night-alt-rain",
+    "11d": "wi-thunderstorm",
+    "11n": "wi-night-alt-thunderstorm",
+    "13d": "wi-snow",
+    "13n": "wi-night-alt-snow",
+    "50d": "wi-fog",
+    "50n": "wi-night-fog",
+  };
+
+  const mappedKey = iconMap[iconCode] || "wi-na";
+  return iconRegistry[mappedKey] || iconRegistry["wi-na"];
+}

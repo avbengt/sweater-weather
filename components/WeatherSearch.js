@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import fetchWeather from "@/utils/fetchWeather";
 import { getCoordinates } from "@/utils/getCoordinates";
 import WeatherIcon from "@/components/WeatherIcon";
 import PlacesAutocompleteInput from "@/components/PlacesAutocompleteInput";
 import { iconRegistry } from "@/components/iconRegistry";
 import MoonPhase from "@/components/MoonPhase";
+import { mapWeatherIcon } from "@/components/iconRegistry";
 
 const stateLookup = {
   // (same stateLookup as before)
@@ -32,6 +33,10 @@ export default function WeatherSearch() {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [input, setInput] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
+  const scrollRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
   const [locations, setLocations] = useState([]);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [weather, setWeather] = useState(null);
@@ -46,8 +51,14 @@ export default function WeatherSearch() {
   const [uvi, setUvi] = useState(null);
   const [moonPhase, setMoonPhase] = useState(null);
   const [fiveDayForecast, setFiveDayForecast] = useState([]);
+  const [hourlyForecast, setHourlyForecast] = useState([]);
+  const [timezoneOffset, setTimezoneOffset] = useState(0);
 
-  // Fetch weather on initial load using geolocation
+
+  function formatHour(unix, offset) {
+    const localTime = new Date((unix + offset) * 1000);
+    return localTime.toLocaleTimeString([], { hour: 'numeric', hour12: true });
+  }
 
   useEffect(() => {
     if (isInitialLoad && "geolocation" in navigator) {
@@ -60,13 +71,17 @@ export default function WeatherSearch() {
           setIsInitialLoad(false);
         },
         (error) => {
-          console.error("Error getting geolocation:", error);
+          console.error("Error getting geolocation:", {
+            code: error?.code,
+            message: error?.message,
+            fullError: error,
+          });
           setError("Location access denied or unavailable. Please search manually.");
           setIsInitialLoad(false);
         },
         {
-          enableHighAccuracy: true,
-          timeout: 20000,  // 20 seconds
+          enableHighAccuracy: false,
+          timeout: 5000,  // 5 seconds
           maximumAge: 0    // always get a fresh position
         }
       );
@@ -90,19 +105,29 @@ export default function WeatherSearch() {
 
   const handleWeatherResult = async (result, loc) => {
     if (!result || result.error) {
-      setError("Failed to fetch weather data.");
+      console.error("Weather fetch failed or result is undefined:", result);
+      setError(result?.error || "Failed to fetch weather data.");
       return;
     }
 
-    const { weatherData, dewPoint, uvi, moonPhase, dailyForecast } = result;
+    const {
+      current,
+      dewPoint,
+      uvi,
+      moonPhase,
+      dailyForecast,
+      hourlyForecast,
+      timezoneOffset,
+    } = result;
+    setTimezoneOffset(timezoneOffset);
 
-    if (!weatherData || !weatherData.sys) {
-      console.error("Weather data is missing or incomplete:", weatherData);
+    if (!current) {
+      console.error("Weather data is missing or incomplete:", result);
       setError("Weather data is incomplete.");
       return;
     }
 
-    const now = weatherData.dt;
+    const now = current.dt;
     const localTimeFormatted = new Date(now * 1000).toLocaleTimeString([], {
       hour: 'numeric',
       minute: '2-digit',
@@ -110,8 +135,8 @@ export default function WeatherSearch() {
     });
     setLocalTime(localTimeFormatted);
 
-    const sunrise = weatherData?.sys?.sunrise || 0;
-    const sunset = weatherData?.sys?.sunset || 0;
+    const sunrise = current?.sunrise || 0;
+    const sunset = current?.sunset || 0;
     const isNightTime = now < sunrise || now > sunset;
 
     let cityName = "";
@@ -164,17 +189,29 @@ export default function WeatherSearch() {
       state: stateName,
       country: countryName,
       zip: zip,
-      weather: weatherData,
-      moon_phase: moonPhase,
+      current: current,
+      daily: dailyForecast,
+      visibility: current.visibility,
+      wind: current.wind_speed,
+      windDeg: current.wind_deg,
+      conditionId: current.weather[0].id,
+      description: current.weather[0].description,
+      sunrise: current.sunrise,
+      sunset: current.sunset,
+      temp: current.temp,
+      feels_like: current.feels_like,
+      pressure: current.pressure,
+      humidity: current.humidity,
     });
 
     setIsNight(isNightTime);
-    setConditionId(weatherData.weather[0].id);
-    setDescription(weatherData.weather[0].description);
+    setConditionId(current.weather[0].id);
+    setDescription(current.weather[0].description);
     setDewPoint(dewPoint);
     setUvi(uvi);
     setMoonPhase(moonPhase);
     setFiveDayForecast(dailyForecast);
+    setHourlyForecast(hourlyForecast);
   };
 
   const toggleUnits = () => {
@@ -220,7 +257,7 @@ export default function WeatherSearch() {
     }
   };
 
-  const hasWeatherData = weather?.weather?.main?.temp !== undefined;
+  const hasWeatherData = weather?.temp !== undefined;
 
   const HumidityIcon = iconRegistry["wi-humidity"];
   const PressureIcon = iconRegistry["wi-barometer"];
@@ -234,43 +271,39 @@ export default function WeatherSearch() {
 
   return (
     <div>
-      <header className="bg-slate-800 text-slate-200 shadow-md py-1 z-1">
-        <div className="flex items-center justify-between p-4 relative max-w-7xl mx-auto">
-          {/* Logo */}
+      <header className="h-[50px] sm:h-[50px] md:h-[76px] bg-slate-800 text-slate-200 shadow-md p-2 md:p-4 z-1">
+        <div className="flex items-center justify-between h-full relative max-w-7xl mx-auto px-1 md:px-4">
           <div className="flex items-center">
-            {/* <img src="/logo.svg" alt="Logo" className="w-12" /> */}
-            <span className="ml-2 [font-family:var(--font-fjord-one)] text-white text-2xl">alissa.dev<span className="text-[#5ce1e6] [font-family:var(--font-dancing-script)] text-3xl font-bold border-l border-l-slate-600 ps-2 ms-2">weather</span></span>
+            <span className="ml-2 [font-family:var(--font-fjord-one)] text-white text-base md:text-2xl">alissa.dev<span className="text-[#5ce1e6] [font-family:var(--font-dancing-script)] text-xl md:text-3xl font-bold border-l border-l-slate-600 ps-2 ms-2">weather</span></span>
           </div>
 
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-1/2 max-w-md">
-            <div className="relative">
-              <PlacesAutocompleteInput
-                value={input}
-                onChange={(val) => setInput(val)}
-                onFocus={() => setInputFocused(true)}
-                onBlur={() => setInputFocused(false)}
-                onPlaceSelected={async (place) => {
-                  const newLocation = {
-                    city: place.name,
-                    state: place.state,
-                    country: place.country,
-                    lat: place.lat,
-                    lon: place.lon
-                  };
+          <div className="relative">
+            <PlacesAutocompleteInput
+              value={input}
+              onChange={(val) => setInput(val)}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
+              onPlaceSelected={async (place) => {
+                const newLocation = {
+                  city: place.name,
+                  state: place.state,
+                  country: place.country,
+                  lat: place.lat,
+                  lon: place.lon
+                };
 
-                  setSelectedLocation(newLocation);
-                  const result = await fetchWeather(newLocation, units);
-                  handleWeatherResult(result, newLocation);
-                  setInput(""); // Clear input after selection
-                }}
-                onKeyDown={handleKeyDown}
-              />
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"></div>
+                setSelectedLocation(newLocation);
+                const result = await fetchWeather(newLocation, units);
+                handleWeatherResult(result, newLocation);
+                setInput(""); // Clear input after selection
+              }}
+              onKeyDown={handleKeyDown}
+            />
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"></div>
 
-            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3 md:px-4">
             <span className={`text-sm ${units === "imperial" ? "font-bold" : "text-slate-400"}`}>
               °F
             </span>
@@ -292,7 +325,7 @@ export default function WeatherSearch() {
 
       </header>
 
-      <div className="flex justify-center flex-col items-center w-full px-4 py-8 max-w-7xl mx-auto">
+      <div className="flex justify-center flex-col items-center w-full px-0 py-0 md:px-4 md:py-8 max-w-7xl mx-auto">
         {hasWeatherData && (
           <div className="w-full flex flex-col justify-center items-center">
             <div className="container w-full flex flex-col">
@@ -321,8 +354,8 @@ export default function WeatherSearch() {
                   {conditionId && (
                     <>
                       <WeatherIcon
-                        conditionId={weather.weather.weather[0].id}
-                        description={weather.weather.weather[0].description}
+                        conditionId={weather.conditionId}
+                        description={weather.description}
                         isNight={isNight}
                         className="w-32 h-32 text-[#30b0b6]"
                       />
@@ -335,11 +368,56 @@ export default function WeatherSearch() {
                 <div className="size-fit">
                   <p className="text-slate-700 text-8xl">
                     {/* Temperature */}
-                    {Math.round(weather.weather.main.temp)}°{ /* units === "imperial" ? "F" : "C" */}
+                    {Math.round(weather.temp)}°{ /* units === "imperial" ? "F" : "C" */}
                   </p>
-                  <p>Feels like: {Math.round(weather.weather.main.feels_like)}°</p>
+                  <p>Feels like: {Math.round(weather.feels_like)}°</p>
                 </div>
               </div>
+
+
+
+              <div className="relative w-full mt-6">
+                {/* Gradient Arrows */}
+                <div className="absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-[#30b0b6]/60 to-transparent pointer-events-none z-10 rounded-l" />
+                <div className="absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-[#30b0b6]/60 to-transparent pointer-events-none z-10 rounded-r" />
+
+                {/* Scrollable Row with Drag Support */}
+                <div
+                  ref={scrollRef}
+                  className="flex overflow-x-auto gap-2 hide-scrollbar px-2 cursor-grab active:cursor-grabbing"
+                  onMouseDown={(e) => {
+                    setIsDragging(true);
+                    setStartX(e.pageX - scrollRef.current.offsetLeft);
+                    setScrollLeft(scrollRef.current.scrollLeft);
+                  }}
+                  onMouseLeave={() => setIsDragging(false)}
+                  onMouseUp={() => setIsDragging(false)}
+                  onMouseMove={(e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    const x = e.pageX - scrollRef.current.offsetLeft;
+                    const walk = (x - startX) * 1.5;
+                    scrollRef.current.scrollLeft = scrollLeft - walk;
+                  }}
+                >
+
+                  {hourlyForecast.map((hour, index) => {
+                    const IconComponent = mapWeatherIcon(hour.weather[0].icon);
+
+                    return (
+                      <div
+                        key={index}
+                        className="flex flex-col items-center justify-between w-18 bg-[#30b0b6]/10 p-2 rounded-md text-center text-sm flex-shrink-0"
+                      >
+                        <p className="font-semibold">{formatHour(hour.dt, timezoneOffset)}</p>
+                        {IconComponent && <IconComponent className="w-10 h-10 text-[#30b0b6]" />}
+                        <p className="font-bold text-base">{Math.round(hour.temp)}°</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
 
               <ul className="mt-8">
 
@@ -348,7 +426,10 @@ export default function WeatherSearch() {
                     {HighLowIcon && <HighLowIcon className="w-6 h-6" />}
                     <span>High / Low:</span>
                   </div>
-                  <span>{Math.round(weather.weather.main.temp_max)}° / {Math.round(weather.weather.main.temp_min)}°</span>
+                  <span>
+                    {Math.round(fiveDayForecast[0]?.temp?.max)}° /
+                    {Math.round(fiveDayForecast[0]?.temp?.min)}°
+                  </span>
                 </li>
 
                 <li className="datapoint">
@@ -356,7 +437,7 @@ export default function WeatherSearch() {
                     {HumidityIcon && <HumidityIcon className="w-6 h-6" />}
                     <span>Humidity:</span>
                   </div>
-                  <span>{weather.weather.main.humidity}%</span>
+                  <span>{weather.humidity}%</span>
                 </li>
 
                 <li className="datapoint">
@@ -364,7 +445,7 @@ export default function WeatherSearch() {
                     {PressureIcon && <PressureIcon className="w-6 h-6" />}
                     <span>Pressure:</span>
                   </div>
-                  <span>{weather.weather.main.pressure} hPa</span>
+                  <span>{weather.pressure} hPa</span>
                 </li>
 
                 <li className="datapoint">
@@ -372,7 +453,7 @@ export default function WeatherSearch() {
                     {VisibilityIcon && <VisibilityIcon className="w-6 h-6" />}
                     <span>Visibility:</span>
                   </div>
-                  <span>{weather.weather.visibility / 1000} km</span>
+                  <span>{weather.visibility / 1000} km</span>
                 </li>
 
                 <li className="datapoint">
@@ -381,8 +462,8 @@ export default function WeatherSearch() {
                     <span>Wind:</span>
                   </div>
                   <span>
-                    {weather.weather.wind.speed} {units === "imperial" ? "mph" : "m/s"}{" "}
-                    {weather.weather.wind.deg ? `from ${weather.weather.wind.deg}°` : ""}
+                    {weather.wind} {units === "imperial" ? "mph" : "m/s"}{" "}
+                    {weather.windDeg ? `from ${weather.windDeg}°` : ""}
                   </span>
                 </li>
 
@@ -410,7 +491,7 @@ export default function WeatherSearch() {
                     <span>Sunrise:</span>
                   </div>
                   <span>
-                    {new Date(weather.weather.sys.sunrise * 1000).toLocaleTimeString([], {
+                    {new Date(weather.sunrise * 1000).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
@@ -423,7 +504,7 @@ export default function WeatherSearch() {
                     <span>Sunset:</span>
                   </div>
                   <span>
-                    {new Date(weather.weather.sys.sunset * 1000).toLocaleTimeString([], {
+                    {new Date(weather.sunset * 1000).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
@@ -431,8 +512,6 @@ export default function WeatherSearch() {
                 </li>
 
               </ul>
-
-
 
 
             </div>

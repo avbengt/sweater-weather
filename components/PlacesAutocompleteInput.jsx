@@ -62,7 +62,7 @@ export default function PlacesAutocompleteInput({
             googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
             libraries={libraries}
         >
-            <div className="relative w-full">
+            <div className="relative">
                 <LocationIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                 <Autocomplete
                     onLoad={(autocomplete) => (window.autocompleteRef = autocomplete)}
@@ -80,7 +80,7 @@ export default function PlacesAutocompleteInput({
                         onKeyDown={onKeyDown} // if you’re passing this from WeatherSearch
                         onFocus={onFocus}
                         onBlur={onBlur}
-                        className="w-full pl-10 pr-10 p-2 bg-slate-700 text-slate-200 placeholder-slate-200 rounded-md text-center"
+                        className="w-4/5 md:w-full max-h-[25px] md:max-h-[40px] pl-10 pr-10 p-2 bg-slate-700 text-slate-200 placeholder-slate-200 rounded-md text-center text-sm md:text-base"
                     />
                 </Autocomplete>
             </div>
