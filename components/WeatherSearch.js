@@ -400,10 +400,10 @@ export default function WeatherSearch() {
             <li className="datapoint flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {HighLowIcon && <HighLowIcon className="w-6 h-6 fill-white block shrink-0" />}
-                <span>High / Low:</span>
+                <span>High/Low:</span>
               </div>
               <span>
-                {Math.round(fiveDayForecast[0]?.temp?.max)}° / {Math.round(fiveDayForecast[0]?.temp?.min)}°
+                {Math.round(fiveDayForecast[0]?.temp?.max)}°/{Math.round(fiveDayForecast[0]?.temp?.min)}°
               </span>
             </li>
 
@@ -513,7 +513,7 @@ export default function WeatherSearch() {
 
                       {/* Temps */}
                       <div className="font-bold ml-auto text-right sm:ml-0 self-end sm:self-center">
-                        {Math.round(day.temp.max)}° <span className="font-normal">/</span> {Math.round(day.temp.min)}°
+                        {Math.round(day.temp.max)}°<span className="font-normal">/</span>{Math.round(day.temp.min)}°
                       </div>
                     </div>
                   ))}
