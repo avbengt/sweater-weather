@@ -396,7 +396,7 @@ export default function WeatherSearch() {
 
 
 
-          <ul className="mt-4 grid grid-cols-2 gap-x-15 text-white text-sm leading-6 md:text-base">
+          <ul className="mt-4 grid grid-cols-2 gap-x-8 text-white text-sm leading-6 md:text-base">
             <li className="datapoint flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {HighLowIcon && <HighLowIcon className="w-6 h-6 fill-white block shrink-0" />}
@@ -523,7 +523,7 @@ export default function WeatherSearch() {
           </div>
 
 
-          <div className="flex flex-col sm:flex-row gap-x-15 gap-y-10 mt-16 text-white text-sm leading-6 md:text-base md:leading-6">
+          <div className="flex flex-col sm:flex-row gap-x-8 gap-y-10 mt-16 text-white text-sm leading-6 md:text-base md:leading-6">
             {/* Air & Atmosphere */}
             <div className="flex-1">
               <h3 className="mt-0 font-bold text-white text-sm text-left uppercase">
