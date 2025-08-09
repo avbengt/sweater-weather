@@ -374,7 +374,7 @@ export default function WeatherSearch() {
               )}
             </h2>
           </div>
-          <div className="flex flex-row items-center justify-center gap-6 min-h-[150px] my-3">
+          <div className="flex flex-row items-center justify-center gap-4 md:gap-2 min-h-[150px] my-3">
 
             <div className="">
               <p className="text-white text-8xl md:text-9xl font-thin tracking-tighter">
@@ -396,15 +396,14 @@ export default function WeatherSearch() {
 
 
 
-          <ul className="mt-4 grid grid-cols-2 gap-x-8 text-white">
+          <ul className="mt-4 grid grid-cols-2 gap-x-15 text-white text-sm leading-6 md:text-base">
             <li className="datapoint flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {HighLowIcon && <HighLowIcon className="w-6 h-6 fill-white" />}
+                {HighLowIcon && <HighLowIcon className="w-6 h-6 fill-white block shrink-0" />}
                 <span>High / Low:</span>
               </div>
               <span>
-                {Math.round(fiveDayForecast[0]?.temp?.max)}° /
-                {Math.round(fiveDayForecast[0]?.temp?.min)}°
+                {Math.round(fiveDayForecast[0]?.temp?.max)}° / {Math.round(fiveDayForecast[0]?.temp?.min)}°
               </span>
             </li>
 
@@ -486,11 +485,11 @@ export default function WeatherSearch() {
                   5-Day Forecast
                 </h3>
 
-                <div className="flex flex-col md:flex-row gap-2 md:gap-4 mt-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 mt-4">
                   {fiveDayForecast.map((day) => (
                     <div
                       key={day.dt}
-                      className="flex md:flex-col items-center md:items-center text-left md:text-center w-full md:w-1/5 bg-white/10 p-4 rounded gap-3"
+                      className="flex sm:flex-col items-center sm:items-center text-left sm:text-center w-full sm:w-1/5 bg-white/10 p-4 rounded gap-3"
                     >
                       {/* Date */}
                       <div className="font-semibold min-w-[70px]">
@@ -500,11 +499,11 @@ export default function WeatherSearch() {
                       </div>
 
                       {/* Icon + Description */}
-                      <div className="flex items-center gap-4 md:gap-2 md:flex-col md:items-center">
+                      <div className="flex items-center gap-4 sm:gap-2 sm:flex-col sm:items-center">
                         <WeatherIcon
                           conditionId={day.weather[0].id}
                           isNight={isNight}
-                          className="w-6 md:w-8 text-white"
+                          className="h-6 sm:h-8 w-6 sm:w-8 text-white"
                         />
                         <p className="text-sm leading-4">
                           {day.weather[0].description.charAt(0).toUpperCase() +
@@ -513,7 +512,7 @@ export default function WeatherSearch() {
                       </div>
 
                       {/* Temps */}
-                      <div className="font-bold ml-auto text-right md:ml-0 self-end md:self-center">
+                      <div className="font-bold ml-auto text-right sm:ml-0 self-end sm:self-center">
                         {Math.round(day.temp.max)}° <span className="font-normal">/</span> {Math.round(day.temp.min)}°
                       </div>
                     </div>
@@ -523,78 +522,93 @@ export default function WeatherSearch() {
             )}
           </div>
 
-          <div className="mt-8 text-white">
-            <h3 className="mt-8 font-bold text-white text-sm text-left uppercase">Air &amp; Atmosphere</h3>
-            <ul className="mt-4">
-              <li className="datapoint">
-                <div className="flex items-center gap-3">
-                  {WindIcon && <WindIcon className="w-6 h-6 fill-white" />}
-                  <span>Wind:</span>
-                </div>
-                <span>
-                  {weather.wind} {units === "imperial" ? "mph" : "m/s"}{" "}
-                  {weather.windDeg ? `from ${weather.windDeg}°` : ""}
-                </span>
-              </li>
 
-              <li className="datapoint">
-                <div className="flex items-center gap-3">
-                  {PressureIcon && <PressureIcon className="w-6 h-6 fill-white" />}
-                  <span>Pressure:</span>
-                </div>
-                <span>{weather.pressure} hPa</span>
-              </li>
+          <div className="flex flex-col sm:flex-row gap-x-15 gap-y-10 mt-16 text-white text-sm leading-6 md:text-base md:leading-6">
+            {/* Air & Atmosphere */}
+            <div className="flex-1">
+              <h3 className="mt-0 font-bold text-white text-sm text-left uppercase">
+                Air &amp; Atmosphere
+              </h3>
+              <ul className="mt-4">
+                <li className="datapoint flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {WindIcon && <WindIcon className="w-6 h-6 fill-white block shrink-0" />}
+                    <span className="leading-6">Wind:</span>
+                  </div>
+                  <span className="leading-6 flex items-center whitespace-nowrap">
+                    {weather.wind} {units === "imperial" ? "mph" : "m/s"}{" "}
+                    {weather.windDeg ? `from ${weather.windDeg}°` : ""}
+                  </span>
+                </li>
 
-              <li className="datapoint border-none">
-                <div className="flex items-center gap-3">
-                  {VisibilityIcon && <VisibilityIcon className="w-6 h-6 fill-white" />}
-                  <span>Visibility:</span>
-                </div>
-                <span>{weather.visibility / 1000} km</span>
-              </li>
-            </ul>
+                <li className="datapoint flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {PressureIcon && <PressureIcon className="w-6 h-6 fill-white block shrink-0" />}
+                    <span className="leading-6">Pressure:</span>
+                  </div>
+                  <span className="leading-6 flex items-center whitespace-nowrap">
+                    {weather.pressure} hPa
+                  </span>
+                </li>
+
+                <li className="datapoint flex items-center justify-between border-none">
+                  <div className="flex items-center gap-3">
+                    {VisibilityIcon && <VisibilityIcon className="w-6 h-6 fill-white block shrink-0" />}
+                    <span className="leading-6">Visibility:</span>
+                  </div>
+                  <span className="leading-6 flex items-center whitespace-nowrap">
+                    {weather.visibility / 1000} km
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Astronomy */}
+            <div className="flex-1">
+              <h3 className="mt-0 font-bold text-white text-sm text-left uppercase">
+                Astronomy
+              </h3>
+              <ul className="mt-4">
+                <li className="datapoint flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {SunriseIcon && <SunriseIcon className="w-6 h-6 fill-white block shrink-0" />}
+                    <span className="leading-6">Sunrise:</span>
+                  </div>
+                  <span className="leading-6 flex items-center whitespace-nowrap">
+                    {new Date(weather.sunrise * 1000).toLocaleTimeString([], {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}
+                  </span>
+                </li>
+
+                <li className="datapoint flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {SunsetIcon && <SunsetIcon className="w-6 h-6 fill-white block shrink-0" />}
+                    <span className="leading-6">Sunset:</span>
+                  </div>
+                  <span className="leading-6 flex items-center whitespace-nowrap">
+                    {new Date(weather.sunset * 1000).toLocaleTimeString([], {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}
+                  </span>
+                </li>
+
+                <MoonPhase moonPhase={weather?.moon_phase} />
+              </ul>
+            </div>
           </div>
 
-          <div className="my-8 text-white">
-            <h3 className="mt-4 font-bold text-white text-sm text-left uppercase">Astronomy</h3>
-            <ul className="mt-4">
-              <li className="datapoint">
-                <div className="flex items-center gap-3">
-                  {SunriseIcon && <SunriseIcon className="w-6 h-6 fill-white" />}
-                  <span>Sunrise:</span>
-                </div>
-                <span>
-                  {new Date(weather.sunrise * 1000).toLocaleTimeString([], {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true,
-                  })}
-                </span>
-              </li>
+          <footer className="p-4 mt-10">
+            <p className="text-white text-sm text-center">Built by <a href="https://alissa.dev/">Alissa Bengtson</a></p>
+          </footer>
 
-              <li className="datapoint">
-                <div className="flex items-center gap-3">
-                  {SunsetIcon && <SunsetIcon className="w-6 h-6 fill-white" />}
-                  <span>Sunset:</span>
-                </div>
-                <span>
-                  {new Date(weather.sunset * 1000).toLocaleTimeString([], {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true,
-                  })}
-                </span>
-              </li>
-
-              <MoonPhase moonPhase={weather?.moon_phase} />
-            </ul>
-          </div>
         </div>
       )}
 
-      <footer className="p-4">
-        <p className="text-white text-sm text-center">Built by <a href="https://alissa.dev/" className="font-bold opacity-80 hover:opacity-100">Alissa Bengtson</a></p>
-      </footer>
     </div>
   );
 }

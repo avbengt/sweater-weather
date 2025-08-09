@@ -24,17 +24,18 @@ body {
   @apply backdrop-blur-xs bg-slate-300;
 }
 
-/* .dp-frame {
-  @apply p-3 text-center rounded-3xl bg-white/20 backdrop-blur-lg shadow-md border border-white/10;
-} */
+a {
+  @apply font-bold opacity-80 hover:opacity-100 underline decoration-dotted hover:no-underline;
+}
+
 .container {
-  @apply p-5 text-center md:rounded-2xl;
+  @apply p-5 pt-0 text-center md:rounded-2xl text-sm md:text-base;
   height: 100%;
   max-width: 48rem;
 }
 
 .datapoint {
-  @apply flex flex-row justify-between items-start md:items-center gap-2 border-b border-white/25 py-3 w-full;
+  @apply gap-2 border-b border-white/25 py-3 w-full;
 }
 
 .datapoint p span {

@@ -74,12 +74,14 @@ export default function MoonPhase({ moonPhase }) {
     const IconComponent = iconRegistry[iconClass];
 
     return (
-        <li className="datapoint border-none">
+        <li className="datapoint flex items-center justify-between border-none">
             <div className="flex items-center gap-3">
-                {IconComponent && <IconComponent className="w-6 h-6 fill-white" />}
-                <span>Moon Phase:</span>
+                {IconComponent && <IconComponent className="w-6 h-6 fill-white block shrink-0" />}
+                <span className="leading-6">Moon phase:</span>
             </div>
-            <span>{label}</span>
+            <span className="leading-6 flex items-center whitespace-nowrap">
+                {label}
+            </span>
         </li>
     );
 }
