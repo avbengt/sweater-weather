@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Autocomplete, LoadScript } from "@react-google-maps/api";
 import LocationIcon from "@/public/search.svg";
 
@@ -12,8 +12,18 @@ export default function PlacesAutocompleteInput({
     onFocus,
     onBlur,
     onKeyDown,
-    onPlaceSelected
+    onPlaceSelected,
 }) {
+    const [open, setOpen] = useState(false);
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        if (open) {
+            const t = setTimeout(() => inputRef.current?.focus(), 0);
+            return () => clearTimeout(t);
+        }
+    }, [open]);
+
     const handlePlaceChanged = (ref) => {
         const place = ref?.getPlace?.();
         if (!place || !place.geometry) return;
@@ -21,17 +31,18 @@ export default function PlacesAutocompleteInput({
         const lat = place.geometry.location.lat();
         const lon = place.geometry.location.lng();
 
-        const components = place.address_components;
+        const components = place.address_components || [];
 
-        const cityComponent = components.find(c =>
-            c.types.includes("locality") ||
-            c.types.includes("postal_town") ||
-            c.types.includes("sublocality")
+        const cityComponent = components.find(
+            (c) =>
+                c.types.includes("locality") ||
+                c.types.includes("postal_town") ||
+                c.types.includes("sublocality")
         );
-        const stateComponent = components.find(c =>
+        const stateComponent = components.find((c) =>
             c.types.includes("administrative_area_level_1")
         );
-        const countryComponent = components.find(c =>
+        const countryComponent = components.find((c) =>
             c.types.includes("country")
         );
 
@@ -39,20 +50,17 @@ export default function PlacesAutocompleteInput({
         const state = stateComponent?.short_name || "";
         const country = countryComponent?.short_name || "";
 
-        // Call parent handler
-        if (onPlaceSelected) {
-            onPlaceSelected({
-                name: cityName,
-                state,
-                country,
-                lat,
-                lon
-            });
-        }
+        onPlaceSelected?.({
+            name: cityName,
+            state,
+            country,
+            lat,
+            lon,
+        });
 
-        // Also update the input value in the parent
         if (onChange) {
-            const formattedInput = `${cityName}${state ? `, ${state}` : ""}${country !== "US" ? `, ${country}` : ""}`;
+            const formattedInput = `${cityName}${state ? `, ${state}` : ""
+                }${country && country !== "US" ? `, ${country}` : ""}`;
             onChange(formattedInput);
         }
     };
@@ -62,27 +70,58 @@ export default function PlacesAutocompleteInput({
             googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
             libraries={libraries}
         >
-            <div className="relative">
-                <LocationIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                <Autocomplete
-                    onLoad={(autocomplete) => (window.autocompleteRef = autocomplete)}
-                    onPlaceChanged={() => handlePlaceChanged(window.autocompleteRef)}
-                    options={{
-                        types: ['(regions)'],
-                        componentRestrictions: { country: 'us' }
-                    }}
+            <div className="relative flex items-center">
+                <button
+                    type="button"
+                    aria-label="Search for a city or ZIP"
+                    onClick={() => setOpen((prev) => !prev)}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 grid place-items-center w-10 h-10 text-white/80 hover:text-white cursor-pointer"
                 >
-                    <input
-                        type="text"
-                        placeholder="Enter city or ZIP"
-                        value={value}
-                        onChange={(e) => onChange(e.target.value)}
-                        onKeyDown={onKeyDown} // if you’re passing this from WeatherSearch
-                        onFocus={onFocus}
-                        onBlur={onBlur}
-                        className="w-4/5 md:w-full max-h-[25px] md:max-h-[40px] pl-10 pr-10 p-2 bg-slate-700 text-slate-200 placeholder-slate-200 rounded-md text-center text-sm md:text-base"
-                    />
-                </Autocomplete>
+                    <LocationIcon className="w-6 h-6 md:w-8 md:h-8" />
+                </button>
+
+                <div className="w-full pl-10">
+                    <Autocomplete
+                        onLoad={(autocomplete) => (window.autocompleteRef = autocomplete)}
+                        onPlaceChanged={() =>
+                            handlePlaceChanged(window.autocompleteRef)
+                        }
+                        options={{
+                            types: ["(regions)"],
+                            componentRestrictions: { country: "us" },
+                        }}
+                    >
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            placeholder="Enter city or ZIP"
+                            value={value}
+                            onChange={(e) => onChange?.(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Escape") setOpen(false);
+                                onKeyDown?.(e);
+                            }}
+                            onFocus={(e) => {
+                                setOpen(true);
+                                onFocus?.(e);
+                            }}
+                            onBlur={(e) => {
+                                setOpen(false);
+                                onBlur?.(e);
+                            }}
+                            className={[
+                                "w-full bg-transparent outline-none",
+                                "border-0 border-b border-white/80 focus:border-white",
+                                "text-white placeholder-white/70",
+                                "py-1 text-sm md:text-base",
+                                open
+                                    ? "opacity-100 pointer-events-auto select-auto"
+                                    : "opacity-0 pointer-events-none select-none",
+                                "transition-opacity duration-200",
+                            ].join(" ")}
+                        />
+                    </Autocomplete>
+                </div>
             </div>
         </LoadScript>
     );

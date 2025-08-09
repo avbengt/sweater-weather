@@ -24,16 +24,16 @@ const dancingScript = Dancing_Script({
 export { inter, fjordOne, dancingScript };
 
 export const metadata = {
-  title: "Sweater Weather",
-  description: "Sweater Weather by Alissa Bengtson",
+  title: "Weather | alissa.dev",
+  description: "A simple weather app by Alissa Bengtson",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${fjordOne.variable} ${dancingScript.variable} antialiased`}>
+      <body className={`${inter.variable} ${fjordOne.variable} ${dancingScript.variable} antialiased transition-all duration-700 max-h-screen bg-fixed`}>
         {children}
       </body>
-    </html>
+    </html >
   );
 }
