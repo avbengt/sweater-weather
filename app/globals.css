@@ -13,6 +13,12 @@
   }
 }
 
+html,
+body {
+  height: 100%;
+  background: transparent;
+}
+
 body {
   font-family: var(--font-sans) !important;
   /* background-image: url('/backgrounds/sunset-clouds.jpg'); */
@@ -21,7 +27,6 @@ body {
   background: -webkit-linear-gradient(180deg, rgba(110, 211, 221, 1) 0%, rgba(27, 133, 175, 1) 100%);
   background: linear-gradient(180deg, rgba(110, 211, 221, 1) 0%, rgba(27, 133, 175, 1) 100%);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#6ed3dd", endColorstr="#1b85af", GradientType=1); */
-  @apply backdrop-blur-xs bg-slate-300;
 }
 
 a {

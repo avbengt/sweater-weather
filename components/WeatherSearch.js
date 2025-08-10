@@ -3,10 +3,10 @@
 import { useRef, useState, useEffect } from "react";
 import { getCoordinates } from "@/utils/getCoordinates";
 import { getTimeOfDayGradient } from "@/utils/getTimeOfDayGradient";
+import fetchWeather from "@/utils/fetchWeather";
 import { iconRegistry } from "@/components/iconRegistry";
 import { mapWeatherIcon } from "@/components/iconRegistry";
 import HeroImage from "./HeroImage";
-import fetchWeather from "@/utils/fetchWeather";
 import WeatherIcon from "@/components/WeatherIcon";
 import MoonPhase from "@/components/MoonPhase";
 import PlacesAutocompleteInput from "@/components/PlacesAutocompleteInput";
@@ -31,7 +31,7 @@ const countryLookup = {
   SE: "Sweden", NO: "Norway", NZ: "New Zealand"
 };
 
-export default function WeatherSearch() {
+export default function WeatherSearch({ onGradientChange }) {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [input, setInput] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
@@ -56,11 +56,21 @@ export default function WeatherSearch() {
   const [fiveDayForecast, setFiveDayForecast] = useState([]);
   const [hourlyForecast, setHourlyForecast] = useState([]);
 
-
   function formatHour(unix, offset) {
     const localTime = new Date(unix * 1000);
     return localTime.toLocaleTimeString([], { hour: 'numeric', hour12: true });
   }
+
+  useEffect(() => {
+    if (!weather?.current?.dt || !weather?.sunrise || !weather?.sunset) return;
+    const g = getTimeOfDayGradient(weather.current.dt, weather.sunrise, weather.sunset);
+    onGradientChange?.(g);
+  }, [
+    onGradientChange,
+    weather?.current?.dt ?? null,
+    weather?.sunrise ?? null,
+    weather?.sunset ?? null,
+  ]);
 
   useEffect(() => {
     if (isInitialLoad && "geolocation" in navigator) {
@@ -268,15 +278,8 @@ export default function WeatherSearch() {
   const SunsetIcon = iconRegistry["wi-sunset"];
   const HighLowIcon = iconRegistry["wi-thermometer"];
 
-  const currentUnix = weather?.current?.dt || 0;
-  let bgGradient = "bg-gradient-to-b from-[#0092de] to-[#003d6c]";
-
-  if (weather && weather.current?.dt && weather.sunrise && weather.sunset) {
-    const currentUnix = weather.current.dt;
-    bgGradient = getTimeOfDayGradient(currentUnix, weather.sunrise, weather.sunset);
-  }
   return (
-    <div className={`${bgGradient} min-h-screen w-full bg-fixed`}>
+    <div className="min-h-dvh w-full">
       <header className="max-w-[48rem] mx-auto h-[50px] md:h-[76px] py-2 md:py-4 z-1">
         <div className="flex items-center justify-between h-full relative mx-auto px-4 md:px-0">
 
