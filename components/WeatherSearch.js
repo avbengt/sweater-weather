@@ -2,9 +2,9 @@
 
 import { useRef, useState, useEffect } from "react";
 import { getCoordinates } from "@/utils/getCoordinates";
+import { getTimeOfDayGradient } from "@/utils/getTimeOfDayGradient";
 import { iconRegistry } from "@/components/iconRegistry";
 import { mapWeatherIcon } from "@/components/iconRegistry";
-import { getHeroImage } from "@/utils/getHeroImage";
 import HeroImage from "./HeroImage";
 import fetchWeather from "@/utils/fetchWeather";
 import WeatherIcon from "@/components/WeatherIcon";
@@ -268,39 +268,6 @@ export default function WeatherSearch() {
   const SunsetIcon = iconRegistry["wi-sunset"];
   const HighLowIcon = iconRegistry["wi-thermometer"];
 
-  function getTimeOfDayGradient(now, sunrise, sunset) {
-    const oneHour = 3600;
-
-    const blueHourMorningStart = sunrise - oneHour;
-    const goldenHourEveningEnd = sunset + oneHour;
-    const goldenHourStart = sunset - oneHour;
-    const blueHourEveningStart = sunset;
-    const morningEnd = sunrise + 2 * oneHour;
-    const afternoonStart = morningEnd + 3 * oneHour;
-
-    if (now < blueHourMorningStart || now > goldenHourEveningEnd) {
-      return "bg-gradient-to-b from-[#003972] to-[#001322]"; // g1 Deep Night
-    }
-
-    if (now >= blueHourMorningStart && now < sunrise) {
-      return "bg-gradient-to-b from-[#0092de] to-[#003d6c]"; // g7 Blue Hour Morning
-    }
-
-    if (now >= sunrise && now < goldenHourStart) {
-      return "bg-gradient-to-b from-[#0092de] to-[#003d6c]"; // g8 Afternoon
-    }
-
-    if (now >= goldenHourStart && now < sunset) {
-      return "bg-gradient-to-b from-[#5b2c83] to-[#a44065]"; // g18 Golden Hour
-    }
-
-    if (now >= blueHourEveningStart && now <= goldenHourEveningEnd) {
-      return "bg-gradient-to-b from-[#28166b] to-[#5b2c83]";  // Blue Hour Evening
-    }
-
-    return "bg-gradient-to-b from-[#003972] to-[#001322]";  // fallback Night
-  }
-
   const currentUnix = weather?.current?.dt || 0;
   let bgGradient = "bg-gradient-to-b from-[#0092de] to-[#003d6c]";
 
@@ -374,8 +341,15 @@ export default function WeatherSearch() {
               )}
             </h2>
           </div>
-          <div className="flex flex-row items-center justify-center gap-4 md:gap-2 min-h-[150px] my-3">
+          <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 min-h-[150px] my-3">
 
+            <div className="items-center justify-center">
+              <HeroImage
+                conditionId={conditionId}
+                iconCode={weather?.current?.weather?.[0]?.icon}
+                description={weather?.description}
+              />
+            </div>
             <div className="">
               <p className="text-white text-8xl md:text-9xl font-thin tracking-tighter">
                 {Math.round(weather.temp)}°
@@ -384,13 +358,6 @@ export default function WeatherSearch() {
               <p className="text-white/60 text-sm md:text-base text-center">
                 {description.charAt(0).toUpperCase() + description.slice(1)}
               </p>
-            </div>
-            <div className="items-center justify-center">
-              <HeroImage
-                conditionId={conditionId}
-                iconCode={weather?.current?.weather?.[0]?.icon}
-                description={weather?.description}
-              />
             </div>
           </div>
 
